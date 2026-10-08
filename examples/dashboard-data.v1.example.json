@@ -24,6 +24,17 @@
         "feedback": "",
         "action": "下一步实现本地导入预览。",
         "ticktick": "",
+        "dailyTasks": [
+          {
+            "id": "example-daily-task-1",
+            "title": "完成示例待办",
+            "source": "示例计划",
+            "linkedTaskId": "example-task",
+            "completed": false,
+            "createdAt": "2026-10-08T16:20:00+08:00",
+            "updatedAt": "2026-10-08T16:20:00+08:00"
+          }
+        ],
         "updatedAt": "2026-10-08T16:20:00+08:00",
         "version": 1
       }

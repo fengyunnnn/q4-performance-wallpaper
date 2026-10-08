@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="task-detail.css" />
     <link rel="stylesheet" href="phase-board.css" />
     <link rel="stylesheet" href="dashboard-layout.css" />
+    <link rel="stylesheet" href="daily-tasks.css" />
   </head>
   <body>
     <div id="wallpaper">
@@ -35,6 +36,7 @@
       <div id="editor" class="editor" hidden aria-label="每日任务编辑器"><div class="editor-card">
         <div class="editor-head"><div><p>每日推进</p><h2>记录今天的完成与阻塞</h2></div><button id="closeEditor" type="button" aria-label="关闭">×</button></div>
         <label>日期<input id="logDate" type="date" /></label>
+        <section class="daily-task-section"><div class="detail-section-head"><h3>本日任务</h3><small id="dailyTaskProgress">0 / 0 已完成</small></div><p class="daily-task-hint">从两块计划板加入今日待办，或新增一条临时任务；勾选只影响当天。</p><div class="daily-task-add"><select id="dailyTaskPicker" aria-label="选择计划任务"></select><button id="addSelectedDailyTask" type="button">加入今日</button></div><div class="daily-task-add custom"><input id="dailyTaskCustomTitle" type="text" maxlength="80" placeholder="新增临时任务，例如：整理评审待确认项" /><button id="addCustomDailyTask" type="button">新增</button></div><div id="dailyTaskList" class="daily-task-list"></div></section>
         <label>关联任务 / 主题<input id="topicInput" type="text" placeholder="例：AI电视助手 Lite / 中屏竞品 / 全双工链路"></label>
         <div class="pdca-label"><span>P · Plan</span><small>计划要验证什么、优先推进什么</small></div>
         <label>今日关键目标 / 假设<textarea id="planInput" rows="2" placeholder="例：验证 Lite 的差异化价值是否应优先聚焦高频内容发现"></textarea></label>

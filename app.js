@@ -44,11 +44,16 @@
     if (!isObject(value)) return {};
     return Object.fromEntries(Object.entries(value).map(([id, record]) => [id, taskRecord(record)]).filter(([, record]) => record));
   }
+  function dailyTasks(value, fallback = now()) {
+    if (!Array.isArray(value)) return [];
+    return value.filter(item => isObject(item) && typeof item.title === "string").map(item => ({ id: typeof item.id === "string" ? item.id : "daily-" + Date.now() + "-" + Math.random().toString(16).slice(2), title: item.title.slice(0, 80), source: typeof item.source === "string" ? item.source.slice(0, 80) : "自定义", linkedTaskId: typeof item.linkedTaskId === "string" && allTaskIds.has(item.linkedTaskId) ? item.linkedTaskId : "", completed: item.completed === true, createdAt: typeof item.createdAt === "string" ? item.createdAt : fallback, updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : fallback }));
+  }
   function logRecord(value, fallback = now()) {
     if (!isObject(value)) return null;
     const result = Object.fromEntries(fields.map(field => [field, typeof value[field] === "string" ? value[field] : ""]));
     result.updatedAt = typeof value.updatedAt === "string" ? value.updatedAt : fallback;
     result.version = Number.isInteger(value.version) && value.version > 0 ? value.version : 1;
+    result.dailyTasks = dailyTasks(value.dailyTasks, fallback);
     return result;
   }
   function logs(value) {
@@ -188,12 +193,46 @@
     const collection = logs(read(keys.log)), entry = collection[q("#logDate").value || localDate()];
     q("#todayPreview").textContent = entry?.done || "今天还没有记录。用 3 分钟写下推进事项和阻塞点。";
     Object.entries(inputs).forEach(([input, field]) => { q("#" + input).value = entry?.[field] || ""; });
+    renderDailyTasks(entry);
     const history = Object.entries(collection).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 7);
     q("#logHistory").innerHTML = history.length ? history.map(([date, log]) => "<article><time>" + date + "</time><p>" + esc(log.done || "未填写完成事项") + "</p>" + (log.topic ? "<small>主题：" + esc(log.topic) + "</small>" : "") + (log.learning ? "<small>学习：" + esc(log.learning) + "</small>" : "") + (log.blocker ? "<small>阻塞：" + esc(log.blocker) + "</small>" : "") + "</article>").join("") : "<p class=\"empty\">尚无记录</p>";
+  }
+  function renderDailyTasks(entry) {
+    const options = [{ label: "选择计划任务加入今日", value: "" }, ...goals.flatMap(group => group.items.map(item => ({ label: "Q4 · " + group.group + "｜" + item[0], value: taskId(group.group, item[0]) }))), ...phaseGoals.flatMap(group => group.items.map(item => ({ label: "第二阶段 · " + group.group + "｜" + item[0], value: phaseTaskId(group.group, item[0]) })) )];
+    q("#dailyTaskPicker").innerHTML = options.map(option => "<option value=\"" + option.value + "\">" + option.label + "</option>").join("");
+    const items = entry?.dailyTasks || [];
+    q("#dailyTaskProgress").textContent = items.filter(item => item.completed).length + " / " + items.length + " 已完成";
+    q("#dailyTaskList").innerHTML = items.length ? items.map(item => "<article class=\"daily-task-item " + (item.completed ? "done" : "") + "\"><input type=\"checkbox\" data-daily-toggle=\"" + item.id + "\" " + (item.completed ? "checked" : "") + " aria-label=\"标记当天任务完成\" /><span>" + esc(item.title) + "<small>" + esc(item.source) + "</small></span><button type=\"button\" data-daily-delete=\"" + item.id + "\">移除</button></article>").join("") : "<p class=\"empty\">今天还未配置待办。</p>";
+    document.querySelectorAll("[data-daily-toggle]").forEach(input => input.addEventListener("change", () => updateDailyTasks(items => items.map(item => item.id === input.dataset.dailyToggle ? { ...item, completed: input.checked, updatedAt: now() } : item))));
+    document.querySelectorAll("[data-daily-delete]").forEach(button => button.addEventListener("click", () => updateDailyTasks(items => items.filter(item => item.id !== button.dataset.dailyDelete))));
+  }
+  function updateDailyTasks(change) {
+    const collection = logs(read(keys.log));
+    const date = q("#logDate").value || localDate();
+    const current = collection[date] || logRecord({}, now());
+    Object.entries(inputs).forEach(([input, field]) => { current[field] = q("#" + input).value.trim(); });
+    current.dailyTasks = change(current.dailyTasks || []);
+    current.updatedAt = now(); current.version = (current.version || 0) + 1;
+    collection[date] = current;
+    write(keys.log, collection);
+    render();
+  }
+  function addSelectedDailyTask() {
+    const id = q("#dailyTaskPicker").value;
+    const found = id && findTask(id);
+    if (!found) return;
+    updateDailyTasks(items => items.some(item => item.linkedTaskId === id) ? items : [...items, { id: "daily-" + Date.now() + "-" + Math.random().toString(16).slice(2), title: found.item[0], source: found.board + " · " + found.group.group, linkedTaskId: id, completed: false, createdAt: now(), updatedAt: now() }]);
+  }
+  function addCustomDailyTask() {
+    const title = q("#dailyTaskCustomTitle").value.trim();
+    if (!title) { q("#dailyTaskCustomTitle").focus(); return; }
+    q("#dailyTaskCustomTitle").value = "";
+    updateDailyTasks(items => [...items, { id: "daily-" + Date.now() + "-" + Math.random().toString(16).slice(2), title: title.slice(0, 80), source: "临时任务", linkedTaskId: "", completed: false, createdAt: now(), updatedAt: now() }]);
   }
   function saveLog() {
     const collection = logs(read(keys.log)), date = q("#logDate").value || localDate(), previous = collection[date];
     const entry = Object.fromEntries(Object.entries(inputs).map(([input, field]) => [field, q("#" + input).value.trim()]));
+    entry.dailyTasks = previous?.dailyTasks || [];
     entry.updatedAt = now(); entry.version = (previous?.version || 0) + 1;
     collection[date] = entry; write(keys.log, collection); render();
   }
@@ -202,11 +241,12 @@
     const collection = logs(read(keys.log)), status = tasks(read(keys.task));
     const current = Object.entries(collection).filter(([date]) => date >= start && date <= end).sort((a, b) => a[0].localeCompare(b[0]));
     const completed = goals.flatMap(group => group.items.map(item => [group.group, item[0]])).filter(([group, name]) => status[taskId(group, name)]?.completed);
+    const dailyCompleted = current.flatMap(([date, log]) => (log.dailyTasks || []).filter(item => item.completed).map(item => "- " + date.slice(5) + "：" + item.title + "（" + item.source + "）"));
     const section = (title, field, fallback) => {
       const items = current.filter(([, log]) => log[field]).map(([date, log]) => "- " + date.slice(5) + "：" + log[field]);
       return "## " + title + "\n" + (items.length ? items.join("\n") : "- " + fallback) + "\n";
     };
-    return "# Q4 周复盘｜" + start + " ～ " + end + "\n\n> 本周复盘依据：每日记录、任务状态与关键协作输入。内部事实请在提交前二次核验。\n\n## 一、本周目标与关键假设（Plan）\n" + section("计划输入", "plan", "暂无记录") + "## 二、已推进事项与产出（Do）\n" + section("每日完成", "done", "暂无记录") + "### 已勾选任务\n" + (completed.length ? completed.map(([group, name]) => "- [x] " + group + "｜" + name).join("\n") : "- 暂无已勾选任务") + "\n\n## 三、检查：证据、学习与反馈（Check）\n" + section("关联任务 / 主题", "topic", "暂无记录") + section("学习 / 观察 / 证据", "learning", "暂无记录") + section("信息来源 / 材料链接", "source", "暂无记录") + section("导师 / 同事反馈", "feedback", "暂无记录") + section("阻塞与待协作", "blocker", "暂无记录") + "## 四、调整与下周动作（Act）\n" + section("调整决策 / 下一步", "action", "暂无记录") + "\n## 五、下周计划（待填写）\n- 本周最重要的一个交付目标：\n- 需要验证的关键假设：\n- 需要协调的资源 / 决策：\n- 预期验收证据：\n";
+    return "# Q4 周复盘｜" + start + " ～ " + end + "\n\n> 本周复盘依据：每日记录、任务状态与关键协作输入。内部事实请在提交前二次核验。\n\n## 一、本周目标与关键假设（Plan）\n" + section("计划输入", "plan", "暂无记录") + "## 二、已推进事项与产出（Do）\n" + section("每日完成", "done", "暂无记录") + "### 本日待办完成\n" + (dailyCompleted.length ? dailyCompleted.join("\n") : "- 暂无已勾选的本日待办") + "\n\n### 已勾选季度任务\n" + (completed.length ? completed.map(([group, name]) => "- [x] " + group + "｜" + name).join("\n") : "- 暂无已勾选任务") + "\n\n## 三、检查：证据、学习与反馈（Check）\n" + section("关联任务 / 主题", "topic", "暂无记录") + section("学习 / 观察 / 证据", "learning", "暂无记录") + section("信息来源 / 材料链接", "source", "暂无记录") + section("导师 / 同事反馈", "feedback", "暂无记录") + section("阻塞与待协作", "blocker", "暂无记录") + "## 四、调整与下周动作（Act）\n" + section("调整决策 / 下一步", "action", "暂无记录") + "\n## 五、下周计划（待填写）\n- 本周最重要的一个交付目标：\n- 需要验证的关键假设：\n- 需要协调的资源 / 决策：\n- 预期验收证据：\n";
   }
   function download(content, filename, type) {
     const url = URL.createObjectURL(new Blob([content], { type }));
@@ -318,6 +358,8 @@
   q("#closeEditor").addEventListener("click", () => { q("#editor").hidden = true; });
   q("#logDate").addEventListener("change", renderLogs);
   q("#saveLog").addEventListener("click", saveLog);
+  q("#addSelectedDailyTask").addEventListener("click", addSelectedDailyTask);
+  q("#addCustomDailyTask").addEventListener("click", addCustomDailyTask);
   q("#exportWeek").addEventListener("click", exportWeek);
   q("#exportWeekInEditor").addEventListener("click", exportWeek);
   q("#openTicktick").addEventListener("click", () => { const url = q("#ticktickInput").value.trim(); if (url) window.open(url, "_blank", "noopener"); });
