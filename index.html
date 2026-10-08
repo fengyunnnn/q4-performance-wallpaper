@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Q4 绩效任务看板</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="backup.css" />
+    <link rel="stylesheet" href="task-detail.css" />
+    <link rel="stylesheet" href="phase-board.css" />
+    <link rel="stylesheet" href="dashboard-layout.css" />
   </head>
   <body>
     <div id="wallpaper">
@@ -13,12 +17,21 @@
         <div><p>2026 Q4 · 试用期目标</p><h1>把每一次推进，变成可见的闭环</h1></div>
         <div class="today"><time id="clockTime">--:--</time><span id="clockDate">--</span></div>
       </header>
+      <div class="board-layout">
+      <aside class="phase-panel" aria-label="试用期第二阶段计划">
+        <div class="board-header"><div><p>PROBATION · PHASE 2</p><h2>试用期第二阶段计划</h2></div><span class="board-period">08.22–10.21</span></div>
+        <div class="phase-summary"><span>当前维度完成</span><strong id="phaseProgress">0 / 0</strong></div>
+        <section class="phase-workspace"><div class="section-title"><span>结果目标</span><small>点击卡片查看详情</small></div><nav id="phasePager" class="goal-pager phase-pager" aria-label="第二阶段目标分页"></nav><div id="phaseGroups" class="goal-groups"></div></section>
+        <p class="phase-note">评分细则与内部评价口径仅保留在本机私有档案，不在公开页面展示。</p>
+      </aside>
       <main class="performance-panel" aria-label="Q4 绩效任务">
+        <div class="board-header q4-header"><div><p>PERFORMANCE · Q4</p><h2>Q4 绩效任务</h2></div><span class="board-period">10.09–12.31</span></div>
         <section class="summary-row"><div><span>总任务</span><strong id="taskProgress">0 / 0</strong></div><div><span>本周重点</span><strong id="weekFocus">0</strong></div><div><span>下个里程碑</span><strong id="nextMilestone">--</strong></div></section>
-        <section><div class="section-title"><span>绩效任务</span><small>点击任务更新状态</small></div><div id="goalGroups" class="goal-groups"></div></section>
+        <section class="goal-workspace"><div class="section-title"><span>绩效任务</span><small>按维度切换，点击卡片查看详情</small></div><nav id="goalPager" class="goal-pager" aria-label="绩效维度分页"></nav><div id="goalGroups" class="goal-groups"></div></section>
         <section class="milestone-area"><div class="section-title"><span>关键里程碑</span><small id="milestoneHint"></small></div><div id="milestoneList" class="milestone-list"></div></section>
-        <section class="daily-area"><div class="section-title"><span>每日记录 · PDCA 素材</span><span><button id="exportWeek" type="button">导出周复盘</button><button id="openEditor" type="button">填写 / 查看</button></span></div><p id="todayPreview" class="today-preview">今天还没有记录。用 3 分钟写下推进事项和阻塞点。</p></section>
+        <section class="daily-area"><div class="section-title"><span>每日记录 · PDCA 素材</span><span><button id="exportWeek" type="button">导出周复盘</button><button id="openEditor" type="button">填写 / 查看</button></span></div><p id="todayPreview" class="today-preview">今天还没有记录。用 3 分钟写下推进事项和阻塞点。</p><div class="backup-actions"><button id="exportBackup" type="button">导出本机备份</button><button id="selectImport" type="button">导入本机备份</button><small>备份仅下载到本机，不会上传至 GitHub。</small></div></section>
       </main>
+      </div>
       <div id="editor" class="editor" hidden aria-label="每日任务编辑器"><div class="editor-card">
         <div class="editor-head"><div><p>每日推进</p><h2>记录今天的完成与阻塞</h2></div><button id="closeEditor" type="button" aria-label="关闭">×</button></div>
         <label>日期<input id="logDate" type="date" /></label>
@@ -37,6 +50,22 @@
         <label>滴答清单任务链接（可选）<input id="ticktickInput" type="url" placeholder="粘贴任务或清单链接，仅作跳转和留痕" /></label>
         <div class="editor-actions"><button id="saveLog" class="primary" type="button">保存记录</button><button id="exportWeekInEditor" type="button">导出本周复盘</button><button id="openTicktick" type="button">打开滴答清单</button></div>
         <div class="log-history"><h3>最近记录</h3><div id="logHistory"></div></div>
+      </div></div>
+      <input id="backupFile" type="file" accept="application/json,.json" hidden />
+      <div id="importDialog" class="import-dialog" hidden aria-labelledby="importTitle"><div class="import-card">
+        <div class="editor-head"><div><p>本机备份恢复</p><h2 id="importTitle">导入预览</h2></div><button id="closeImport" type="button" aria-label="关闭">×</button></div>
+        <p id="importMessage" class="import-message">请选择由本看板导出的 JSON 备份。</p>
+        <div id="importSummary" class="import-summary" hidden></div>
+        <div id="importConflicts" class="import-conflicts" hidden></div>
+        <fieldset id="importStrategy" class="import-strategy" hidden><legend>发现冲突时如何处理？</legend><label><input type="radio" name="conflictStrategy" value="keep-local" /> 保留本机冲突项</label><label><input type="radio" name="conflictStrategy" value="use-backup" /> 采用备份冲突项</label><label><input type="radio" name="conflictStrategy" value="merge-fields" /> 合并可补齐字段（同一字段均有内容时保留本机）</label></fieldset>
+        <div class="editor-actions"><button id="confirmImport" class="primary" type="button" disabled>确认导入</button><button id="chooseAnotherFile" type="button">重新选择文件</button></div>
+      </div></div>
+      <div id="taskDialog" class="task-dialog" hidden aria-labelledby="taskDetailTitle"><div class="task-detail-card">
+        <div class="editor-head"><div><p id="taskDetailGroup">子需求详情</p><h2 id="taskDetailTitle">--</h2></div><button id="closeTaskDetail" type="button" aria-label="关闭">×</button></div>
+        <div id="taskDetailMeta" class="task-detail-meta"></div>
+        <section><h3>工作说明</h3><p id="taskDetailDescription"></p></section>
+        <section><h3>建议交付与验收</h3><ul id="taskDetailDeliverables"></ul></section>
+        <section class="custom-milestone-section"><div class="detail-section-head"><h3>我的里程碑</h3><small>仅本机保存，会进入 JSON 备份</small></div><div id="customMilestoneList" class="custom-milestone-list"></div><div class="custom-milestone-form"><input id="customMilestoneTitle" type="text" maxlength="80" placeholder="例如：完成评审材料初稿" /><input id="customMilestoneDate" type="date" /><button id="addCustomMilestone" class="primary" type="button">新增</button></div></section>
       </div></div>
     </div>
     <script src="app.js"></script>

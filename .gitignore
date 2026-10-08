@@ -1,4 +1,10 @@
 agent-status.local.json
+*.private.json
+q4-dashboard-backup-*.json
+.env
+.env.*
+!.env.example
+supabase/.temp/
 tools/__pycache__/
 *.pyc
 *.log

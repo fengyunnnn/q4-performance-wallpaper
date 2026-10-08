@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "profileType": "performance-profile",
+  "updatedAt": "2026-10-08T17:00:00+08:00",
+  "dimensions": [
+    {
+      "id": "delivery",
+      "title": "示例交付维度",
+      "weightPercent": 15,
+      "scoreTotal": 150,
+      "items": [
+        {
+          "id": "example-delivery-item",
+          "title": "示例子目标",
+          "period": { "start": "2026-10-09", "end": "2026-12-31", "deadline": null },
+          "deliverables": ["需求材料", "评审记录", "上线跟进记录"],
+          "sharePercent": 33.3,
+          "baseline": "按期完成且产出满足使用要求。",
+          "bonus": "关键节点推进顺畅，并获得协作方正向反馈。",
+          "cap": 120,
+          "status": "not-started"
+        }
+      ]
+    }
+  ]
+}

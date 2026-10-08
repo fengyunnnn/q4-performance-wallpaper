@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-10-08T16:30:00+08:00",
+  "app": {
+    "id": "q4-performance-wallpaper",
+    "dataFormat": "dashboard-backup"
+  },
+  "data": {
+    "taskStatus": {
+      "example-task": {
+        "completed": false,
+        "updatedAt": "2026-10-08T16:20:00+08:00",
+        "version": 1
+      }
+    },
+    "dailyLogs": {
+      "2026-10-08": {
+        "topic": "示例主题",
+        "plan": "验证导入导出流程。",
+        "done": "完成脱敏样例。",
+        "blocker": "",
+        "learning": "导出数据应与公开源码分离。",
+        "source": "",
+        "feedback": "",
+        "action": "下一步实现本地导入预览。",
+        "ticktick": "",
+        "updatedAt": "2026-10-08T16:20:00+08:00",
+        "version": 1
+      }
+    },
+    "weeklyReviews": {
+      "2026-10-05": {
+        "projects": [
+          {
+            "title": "示例项目",
+            "progress": "完成初步整理。",
+            "stage": "验证中",
+            "issues": "需要确认字段定义。",
+            "nextSteps": "实现导入预览。"
+          }
+        ],
+        "businessInsights": "示例：事实与推断应分开记录。",
+        "methodLearnings": "示例：先确认数据边界再实现同步。",
+        "gapsAndImprovements": "示例：下周补充端到端验证。",
+        "schedule": [
+          {
+            "focus": "示例重点工作",
+            "milestone": "本周内",
+            "deliverable": "验证记录"
+          }
+        ],
+        "updatedAt": "2026-10-08T16:25:00+08:00",
+        "version": 1
+      }
+    },
+    "customMilestones": {
+      "example-task": [
+        {
+          "id": "example-milestone-1",
+          "title": "完成示例材料初稿",
+          "date": "2026-10-10",
+          "completed": false,
+          "updatedAt": "2026-10-08T16:25:00+08:00"
+        }
+      ]
+    },
+    "syncMeta": {
+      "lastSyncedAt": null,
+      "lastSuccessfulSyncAt": null,
+      "deviceLabel": "示例设备"
+    }
+  }
+}
