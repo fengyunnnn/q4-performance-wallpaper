@@ -3,70 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Codex Agent Wallpaper</title>
+    <title>Q4 绩效任务看板</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="wallpaper" data-panel-position="right">
-      <div id="scene" class="scene">
-        <img id="backgroundImage" class="background-image scene-layer scene-back" src="assets/scene-clean-plate.webp" alt="" />
-        <div class="scene-depth scene-layer" aria-hidden="true"></div>
-        <img class="scene-layer scene-person" src="assets/scene-person-layer.webp" alt="" aria-hidden="true" />
-      </div>
-      <div class="image-grade" aria-hidden="true"></div>
-      <canvas id="audioCanvas" aria-hidden="true"></canvas>
-
-      <section id="mediaWidget" class="media-widget" aria-label="Now playing">
-        <div class="clock-copy">
-          <time id="clockTime">--:--</time>
-          <span id="clockDate">--</span>
-        </div>
-        <div class="media-row">
-          <div id="albumArt" class="album-art"></div>
-          <div class="media-copy">
-            <strong id="mediaTitle">System audio</strong>
-            <small id="mediaArtist">SMTC / local media</small>
-          </div>
-        </div>
-      </section>
-
-      <main id="agentPanel" class="agent-panel" aria-label="Agent usage">
-        <section class="identity-row">
-          <div>
-            <p class="eyebrow">AGENT STATUS</p>
-            <h1 id="providerName">Codex</h1>
-          </div>
-          <span id="liveState" class="live-state">LIVE</span>
-        </section>
-
-        <section id="quotaBlock" class="quota-block" aria-label="Agent quota windows"></section>
-
-        <section class="calendar-block" aria-label="Token calendar">
-          <div class="metric-head">
-            <span>Token 日历</span>
-            <strong id="calendarRange">最近 10 周</strong>
-          </div>
-          <div id="tokenCalendar" class="token-calendar" aria-hidden="true"></div>
-        </section>
-
-        <section id="tokenBlock" class="token-grid">
-          <div class="metric-tile">
-            <span>累计 Token</span>
-            <strong id="totalTokens">0</strong>
-          </div>
-          <div class="metric-tile">
-            <span>今日 Token</span>
-            <strong id="todayTokens">0</strong>
-          </div>
-        </section>
-
-        <footer class="panel-footer">
-          <span id="updatedAt">未更新</span>
-          <span id="dataHealth">sample</span>
-        </footer>
+    <div id="wallpaper">
+      <div class="scene"><img id="backgroundImage" class="background-image" src="assets/scene-clean-plate.webp" alt="" /><div class="image-grade" aria-hidden="true"></div></div>
+      <header class="topbar">
+        <div><p>2026 Q4 · 试用期目标</p><h1>把每一次推进，变成可见的闭环</h1></div>
+        <div class="today"><time id="clockTime">--:--</time><span id="clockDate">--</span></div>
+      </header>
+      <main class="performance-panel" aria-label="Q4 绩效任务">
+        <section class="summary-row"><div><span>总任务</span><strong id="taskProgress">0 / 0</strong></div><div><span>本周重点</span><strong id="weekFocus">0</strong></div><div><span>下个里程碑</span><strong id="nextMilestone">--</strong></div></section>
+        <section><div class="section-title"><span>绩效任务</span><small>点击任务更新状态</small></div><div id="goalGroups" class="goal-groups"></div></section>
+        <section class="milestone-area"><div class="section-title"><span>关键里程碑</span><small id="milestoneHint"></small></div><div id="milestoneList" class="milestone-list"></div></section>
+        <section class="daily-area"><div class="section-title"><span>每日记录 · PDCA 素材</span><span><button id="exportWeek" type="button">导出周复盘</button><button id="openEditor" type="button">填写 / 查看</button></span></div><p id="todayPreview" class="today-preview">今天还没有记录。用 3 分钟写下推进事项和阻塞点。</p></section>
       </main>
+      <div id="editor" class="editor" hidden aria-label="每日任务编辑器"><div class="editor-card">
+        <div class="editor-head"><div><p>每日推进</p><h2>记录今天的完成与阻塞</h2></div><button id="closeEditor" type="button" aria-label="关闭">×</button></div>
+        <label>日期<input id="logDate" type="date" /></label>
+        <label>关联任务 / 主题<input id="topicInput" type="text" placeholder="例：AI电视助手 Lite / 中屏竞品 / 全双工链路"></label>
+        <div class="pdca-label"><span>P · Plan</span><small>计划要验证什么、优先推进什么</small></div>
+        <label>今日关键目标 / 假设<textarea id="planInput" rows="2" placeholder="例：验证 Lite 的差异化价值是否应优先聚焦高频内容发现"></textarea></label>
+        <div class="pdca-label"><span>D · Do</span><small>只记可追溯的行动与产出</small></div>
+        <label>今日完成<textarea id="doneInput" rows="3" placeholder="例：完成 Lite 差异化方向初稿；与研发确认端侧约束"></textarea></label>
+        <label>阻塞 / 需协作<input id="blockerInput" type="text" placeholder="例：等待中屏竞品体验账号" /></label>
+        <div class="pdca-label"><span>C · Check</span><small>沉淀学习、证据与他人输入</small></div>
+        <label>学习 / 观察 / 证据<textarea id="learningInput" rows="2" placeholder="例：中屏竞品的连续对话入口更适合轻任务；依据：体验记录 / 用户反馈"></textarea></label>
+        <label>信息来源 / 材料链接<input id="sourceInput" type="text" placeholder="例：10.12 竞品体验记录、会议纪要、内部文档链接（待核验也可标注）"></label>
+        <label>导师 / 同事反馈<textarea id="feedbackInput" rows="2" placeholder="记录人 + 反馈要点 + 待确认项，例如：张老师：先收敛场景，再谈能力堆叠"></textarea></label>
+        <div class="pdca-label"><span>A · Act</span><small>把结论变成下一步动作</small></div>
+        <label>调整决策 / 下一步<textarea id="actionInput" rows="2" placeholder="例：将方案拆为内容发现、追剧管理两条链路；周三前补充异常路径"></textarea></label>
+        <label>滴答清单任务链接（可选）<input id="ticktickInput" type="url" placeholder="粘贴任务或清单链接，仅作跳转和留痕" /></label>
+        <div class="editor-actions"><button id="saveLog" class="primary" type="button">保存记录</button><button id="exportWeekInEditor" type="button">导出本周复盘</button><button id="openTicktick" type="button">打开滴答清单</button></div>
+        <div class="log-history"><h3>最近记录</h3><div id="logHistory"></div></div>
+      </div></div>
     </div>
-
     <script src="app.js"></script>
   </body>
 </html>
