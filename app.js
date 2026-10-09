@@ -7,10 +7,10 @@
     { group: "部门分享与讨论", weight: "5%", items: [["新方向讨论", "10.09–12.31", "至少 2 次，输出观点 / 会议纪要"], ["部门分享", "10.09–12.31", "至少 2 次，形成分享材料 / 记录"]] }
   ];
   const phaseGoals = [
-    { group: "需求承接", weight: "15%", items: [["跟踪 2 个真实需求闭环", "截至 10.21", "从需求来源、评审、排期到验收走完全程，并沉淀完整记录"], ["主责 1 个需求或明确模块", "截至 10.21", "在指导下形成可支持评审、研发或测试的产品材料"], ["新媒体落地分析与 Lite 方向", "09.21 / 10.21", "完成渠道竞争分析，并形成运营商场景差异化方向文档"]] },
-    { group: "竞品分析", weight: "10%", items: [["主要竞品基础体验对比", "截至 09.21", "完成 2—3 个主要竞品体验与横向对比，形成报告"], ["细分方向初步分析", "截至 10.21", "围绕一个细分方向形成阶段记录或初步结论"]] },
-    { group: "行业动态追踪", weight: "10%", items: [["行业动态阶段同步", "08.22–10.21", "持续更新行业动态追踪，并完成至少 2 次阶段同步"], ["初步方向关注与双周摘要", "截至 10.21", "选定 1—2 个方向，按双周整理信息摘要或简报要点"]] },
-    { group: "产品开发", weight: "10%", items: [["IPD / Charter / IPMS 初步学习", "截至 10.21", "理解基本概念、核心目标和主要环节，形成学习笔记或问题清单"]] }
+    { group: "需求承接", weight: "15%", items: [["需求全流程跟踪（2个）", "截至 10.21", "需求来源 → 评审 → 排期 → 验收，沉淀完整跟踪记录"], ["主责需求 / 模块交付（1个）", "截至 10.21", "形成可支持评审、研发或测试的产品材料"], ["酷开新媒体渠道分析", "截至 09.21", "梳理新媒体渠道落地情况与竞争优势，形成分析结论"], ["AI电视助手 Lite 差异化方向", "截至 10.21", "形成运营商场景方向文档，并根据反馈迭代完善"]] },
+    { group: "竞品分析", weight: "10%", items: [["主流竞品体验报告（2–3个）", "截至 09.21", "完成基础体验与横向对比，形成竞品体验报告"], ["细分能力专项分析", "截至 10.21", "围绕情绪化合成、记忆能力等一个方向形成初步结论"]] },
+    { group: "行业动态追踪", weight: "10%", items: [["行业动态阶段同步（≥2次）", "08.22–10.21", "持续更新行业动态追踪，完成至少 2 次阶段同步"], ["AI 交互方向调研（1–2个）", "截至 10.21", "选定关注方向，并按双周整理摘要或简报要点"]] },
+    { group: "产品开发", weight: "10%", items: [["IPD / Charter / IPMS 学习笔记", "截至 10.21", "理解基本概念、核心目标与主要环节，形成问题清单或学习笔记"]] }
   ];
   const milestones = [["2026-10-21", "Lite 差异化迭代方向文档"], ["2026-10-21", "中屏新体验对比材料更新"], ["2026-10-22", "系统性调研方向确定"], ["2026-10-22", "竞品专项分析启动"], ["2026-12-11", "深度专题研究报告完成"], ["2026-12-31", "Q4 任务闭环与材料沉淀"]];
   const keys = { task: "q4-performance-task-status-v1", log: "q4-performance-daily-logs-v1", weekly: "q4-performance-weekly-reviews-v1", custom: "q4-performance-custom-milestones-v1" };
@@ -19,7 +19,8 @@
   const maxBackupBytes = 5 * 1024 * 1024;
   const q = selector => document.querySelector(selector);
   const taskId = (group, name) => group + "-" + name;
-  const phaseTaskId = (group, name) => "phase2-" + group + "-" + name;
+  const phaseLegacyTitles = { "需求全流程跟踪（2个）": "跟踪 2 个真实需求闭环", "主责需求 / 模块交付（1个）": "主责 1 个需求或明确模块", "AI电视助手 Lite 差异化方向": "新媒体落地分析与 Lite 方向", "主流竞品体验报告（2–3个）": "主要竞品基础体验对比", "细分能力专项分析": "细分方向初步分析", "行业动态阶段同步（≥2次）": "行业动态阶段同步", "AI 交互方向调研（1–2个）": "初步方向关注与双周摘要", "IPD / Charter / IPMS 学习笔记": "IPD / Charter / IPMS 初步学习" };
+  const phaseTaskId = (group, name) => "phase2-" + group + "-" + (phaseLegacyTitles[name] || name);
   const taskIds = new Set(goals.flatMap(group => group.items.map(item => taskId(group.group, item[0]))));
   const phaseTaskIds = new Set(phaseGoals.flatMap(group => group.items.map(item => phaseTaskId(group.group, item[0]))));
   const allTaskIds = new Set([...taskIds, ...phaseTaskIds]);
